@@ -15,20 +15,22 @@
  */
 package com.databricks.spark
 
-import org.apache.spark.sql.{SQLContext, SchemaRDD}
+import org.apache.spark.sql.{DataFrame, DataFrameReader, DataFrameWriter}
 
 package object avro {
-
   /**
-   * Adds a method, `avroFile`, to SQLContext that allows reading data stored in Avro.
+   * Adds a method, `avro`, to DataFrameWriter that allows you to write avro files using
+   * the DataFileWriter
    */
-  implicit class AvroContext(sqlContext: SQLContext) {
-    def avroFile(filePath: String) =
-      sqlContext.baseRelationToSchemaRDD(AvroRelation(filePath)(sqlContext))
+  implicit class AvroDataFrameWriter[T](writer: DataFrameWriter[T]) {
+    def avro: String => Unit = writer.format("com.databricks.spark.avro").save
   }
 
-  // TODO: Implement me.
-  implicit class AvroSchemaRDD(schemaRDD: SchemaRDD) {
-    def saveAsAvroFile(path: String): Unit = ???
+  /**
+   * Adds a method, `avro`, to DataFrameReader that allows you to read avro files using
+   * the DataFileReade
+   */
+  implicit class AvroDataFrameReader(reader: DataFrameReader) {
+    def avro: String => DataFrame = reader.format("com.databricks.spark.avro").load
   }
 }
